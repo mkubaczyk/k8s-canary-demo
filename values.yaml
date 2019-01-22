@@ -1,0 +1,28 @@
+traefik:
+  enabled: true
+  fullnameOverride: traefik
+  serviceType: NodePort
+  rbac:
+    enabled: true
+  dashboard:
+    enabled: true
+    domain: traefik.minikube
+  accessLogs:
+    enabled: true
+
+echo:
+  deployments:
+    v1: "v1"
+    v2: "v2"
+
+routing:
+  rules:
+    echo.minikube:
+      - service: echo-v1
+        port: 80
+        path: /
+        weight: 99%
+      - service: echo-v2
+        port: 80
+        path: /
+        weight: 1%
