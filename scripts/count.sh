@@ -1,3 +1,6 @@
+#!/bin/bash
+
+set -e
 
 count=$1
 url=$2

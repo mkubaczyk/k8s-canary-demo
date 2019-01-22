@@ -14,6 +14,7 @@ echo:
   deployments:
     v1: "v1"
     v2: "v2"
+    v3: "v3"
 
 routing:
   rules:
@@ -21,8 +22,12 @@ routing:
       - service: echo-v1
         port: 80
         path: /
-        weight: 99%
+        weight: 85%
       - service: echo-v2
         port: 80
         path: /
-        weight: 1%
+        weight: 10%
+      - service: echo-v3
+        port: 80
+        path: /
+        weight: 5%
