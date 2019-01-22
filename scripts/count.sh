@@ -10,7 +10,7 @@ v2=()
 v3=()
 for i in $(seq 1 $count)
 do 
-	response=$(curl -s $url)
+	response=$(curl --connect-timeout 2 --max-time 5 --retry 5 --retry-delay 0 --retry-max-time 5 -s $url)
 	if [[ $response =~ "v1" ]]; then
 		v1+=($response)
 	elif [[ $response =~ "v2" ]]; then
