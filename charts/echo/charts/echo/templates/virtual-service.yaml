@@ -1,0 +1,60 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: echo
+spec:
+  hosts:
+    - echo.minikube
+  gateways:
+    - echo
+  http:
+    {{- range .Values.deployments }}
+    {{- if .http_match }}
+    - match:
+      - headers:
+        {{- range .http_match.headers }}
+          {{ .name }}:
+            exact: {{ .value }}
+        {{- end }}
+      route:
+        - destination:
+            host: echo
+            subset: {{ .name }}
+    {{- end }}
+    {{- end }}
+    - route:
+      {{- range .Values.deployments }}
+      - destination:
+          host: echo
+          subset: {{ .name }}
+        weight: {{ .weight }}
+      {{- end}}
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: echo
+spec:
+  host: echo
+  subsets:
+    {{- range .Values.deployments }}
+    - name: {{ .name }}
+      labels:
+        version: {{ .name }}
+    {{- end }}
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: echo
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: echo-http
+        protocol: HTTP
+      hosts:
+        - 'echo.minikube'

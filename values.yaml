@@ -1,6 +1,37 @@
+istio:
+  grafana:
+    enabled: true
+  tracing:
+    enabled: true
+  servicegraph:
+    enabled: true
+  ingress:
+    service:
+      type: NodePort
+  gateways:
+    istio-ingressgateway:
+      type: NodePort
+    istio-egressgateway:
+      type: NodePort
+
+echo:
+  host: echo.minikube
+  deployments:
+    - name: v1
+      weight: 80
+    - name: v2
+      weight: 19
+    - name: v3
+      weight: 1
+      http_match:
+        headers:
+          - name: user
+            value: json
+
 traefik:
   enabled: true
-  fullnameOverride: traefik
+  kubernetes:
+    ingressClass: traefik
   serviceType: NodePort
   rbac:
     enabled: true
@@ -9,25 +40,3 @@ traefik:
     domain: traefik.minikube
   accessLogs:
     enabled: true
-
-echo:
-  deployments:
-    v1: "v1"
-    v2: "v2"
-    v3: "v3"
-
-routing:
-  rules:
-    echo.minikube:
-      - service: echo-v1
-        port: 80
-        path: /
-        weight: 85%
-      - service: echo-v2
-        port: 80
-        path: /
-        weight: 10%
-      - service: echo-v3
-        port: 80
-        path: /
-        weight: 5%

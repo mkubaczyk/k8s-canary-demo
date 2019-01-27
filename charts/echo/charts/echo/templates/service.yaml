@@ -1,0 +1,49 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: echo
+spec:
+  selector:
+    app: echo
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+{{- range .Values.deployments }}
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: echo-{{ .name }}
+spec:
+  selector:
+    app: echo
+    version: {{ .name }}
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+{{- end }}
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/service-weights: |
+    {{- range .Values.deployments }}
+      echo-{{ .name }}: {{ .weight }}%
+    {{- end }}
+  name: echo
+spec:
+  rules:
+    - host: {{ $.Values.host }}
+      http:
+        paths:
+        {{- range .Values.deployments }}
+        - backend:
+            serviceName: echo-{{ .name }}
+            servicePort: 80
+          path: /
+        {{- end -}}
