@@ -1,7 +1,9 @@
 # k8s-canary-demo
 
-`./scripts/init.sh` to set up a minikube with helm
+Run `./scripts/run.sh all` to initialize minikube with helm, istio, traefik, echo example app and invoke every canary test
 
-`helm upgrade --recreate-pods --wait --install demo .` to deploy chart
+Run `./scripts/run.sh echo` to upgrade echo application after values.yaml changes
 
-`./scripts/count.sh 100 http://echo.minikube:$(kubectl get svc traefik -o jsonpath="{.spec.ports[0].nodePort}")` - to test canary
+Run `./scripts/run.sh canary_istio` or `./scripts/run.sh canary_traefik` to run canary tests for specific controller
+ 
+or `./scripts/run.sh header_istio ` to run tests against http header match routing for istio controller

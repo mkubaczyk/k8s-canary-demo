@@ -1,0 +1,30 @@
+{{ range .Values.deployments }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-{{ .name }}
+  labels:
+    app: echo
+    version: {{ .name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: echo
+      version: {{ .name }}
+  template:
+    metadata:
+      labels:
+        app: echo
+        version: {{ .name }}
+    spec:
+      containers:
+      - name: echo
+        image: hashicorp/http-echo
+        args:
+          - -listen=:80
+          - -text={{ .name | quote }}
+        ports:
+        - containerPort: 80
+{{ end }}
