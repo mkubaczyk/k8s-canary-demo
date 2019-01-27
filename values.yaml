@@ -20,13 +20,15 @@ echo:
     - name: v1
       weight: 80
     - name: v2
-      weight: 19
-    - name: v3
-      weight: 1
+      weight: 15
+      canary: true
       http_match:
         headers:
-          - name: user
-            value: json
+          - name: will-you-let-me-in
+            value: always
+    - name: v3
+      weight: 5
+      canary: true
 
 traefik:
   enabled: true
@@ -40,3 +42,9 @@ traefik:
     domain: traefik.minikube
   accessLogs:
     enabled: true
+
+nginx-ingress:
+  enabled: true
+  controller:
+    service:
+      type: NodePort
