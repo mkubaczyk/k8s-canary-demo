@@ -7,12 +7,12 @@ istio:
     enabled: true
   ingress:
     service:
-      type: NodePort
+      type: LoadBalancer
   gateways:
     istio-ingressgateway:
-      type: NodePort
+      type: LoadBalancer
     istio-egressgateway:
-      type: NodePort
+      type: LoadBalancer
 
 echo:
   host: echo.minikube
@@ -22,19 +22,19 @@ echo:
     - name: v2
       weight: 15
       canary: true
+    - name: v3
+      weight: 5
+      canary: true
       http_match:
         headers:
           - name: will-you-let-me-in
             value: always
-    - name: v3
-      weight: 5
-      canary: true
 
 traefik:
   enabled: true
   kubernetes:
     ingressClass: traefik
-  serviceType: NodePort
+  serviceType: LoadBalancer
   rbac:
     enabled: true
   dashboard:
@@ -47,4 +47,4 @@ nginx-ingress:
   enabled: true
   controller:
     service:
-      type: NodePort
+      type: LoadBalancer
