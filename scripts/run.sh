@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 LOG_COUNT=1
 function log {
@@ -26,7 +26,7 @@ function init_helm {
 function run_istio {
     log "Upgrading|installing istio"
     kubectl create ns istio-system || true
-    helm upgrade --recreate-pods --wait --install --wait --values values.yaml istio ./charts/istio --timeout 900
+    helm upgrade --recreate-pods --install --wait --values values.yaml istio ./charts/istio --timeout 900
 }
 
 function run_nginx_ingress {
@@ -37,7 +37,7 @@ function run_nginx_ingress {
 
 function run_echo {
     log "Upgrading|installing echo"
-    helm upgrade --recreate-pods --wait --install --wait --values values.yaml echo ./charts/echo
+    helm upgrade --recreate-pods --install --wait --values values.yaml echo ./charts/echo
 }
 
 function run_canary_header {

@@ -61,7 +61,7 @@ metadata:
     {{- range .http_match.headers }}
     nginx.ingress.kubernetes.io/canary-by-header: {{ .name | quote }}
     {{- end }}
-    {{- end}}
+    {{- end }}
     {{- end }}
   name: echo-{{ .name }}-nginx
 spec:
