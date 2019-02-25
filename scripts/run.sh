@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 LOG_COUNT=1
 function log {
@@ -11,9 +11,18 @@ function log {
 
 function init_minikube {
     log "Deleting minikube"
-    minikube delete || true
+    minikube delete -p minikube-canary-demo || true
     log "Bootstraping minikube"
-    minikube start --vm-driver=hyperkit --kubernetes-version=v1.13.2 --cpus=4 --memory=8192
+    minikube start -p minikube-canary-demo --vm-driver=hyperkit --kubernetes-version=v1.10.13 --cpus=4 --memory=12288 --disk-size 32g
+    minikube -p minikube-canary-demo addons enable heapster
+    minikube -p minikube-canary-demo addons enable metrics-server
+    metrics_server_unavailable="1"
+    while [[ "$metrics_server_unavailable" == "1" ]];
+    do
+        echo "Waiting for metrics-server..."
+        sleep 10
+        metrics_server_unavailable=$(kubectl get deploy -n kube-system metrics-server -o jsonpath={.status.unavailableReplicas}) || true
+    done
 }
 
 function init_helm {
@@ -56,9 +65,9 @@ function run_canary_header {
     else
         if [[ $controller == "istio" ]]
         then
-            command="${command} $(minikube ip):$(kubectl get svc istio-ingressgateway -o jsonpath="{.spec.ports[0].nodePort}")"
+            command="${command} $(minikube -p minikube-canary-demo ip):$(kubectl get svc istio-ingressgateway -o jsonpath="{.spec.ports[0].nodePort}")"
         else
-            command="${command} $(minikube ip):$(kubectl get svc nginx-ingress-controller -o jsonpath="{.spec.ports[0].nodePort}")"
+            command="${command} $(minikube -p minikube-canary-demo ip):$(kubectl get svc nginx-ingress-controller -o jsonpath="{.spec.ports[0].nodePort}")"
         fi
     fi
     command="${command} $host 'will-you-let-me-in: always'"
@@ -84,12 +93,12 @@ function run_canary {
     else
         if [[ $controller == "istio" ]]
         then
-            command="${command} $(minikube ip):$(kubectl get svc istio-ingressgateway -o jsonpath="{.spec.ports[0].nodePort}")"
+            command="${command} $(minikube -p minikube-canary-demo ip):$(kubectl get svc istio-ingressgateway -o jsonpath="{.spec.ports[0].nodePort}")"
         elif [[ $controller == "nginx" ]]
         then
-            command="${command} $(minikube ip):$(kubectl get svc nginx-ingress-controller -o jsonpath="{.spec.ports[0].nodePort}")"
+            command="${command} $(minikube -p minikube-canary-demo ip):$(kubectl get svc nginx-ingress-controller -o jsonpath="{.spec.ports[0].nodePort}")"
         else
-            command="${command} $(minikube ip):$(kubectl get svc traefik -o jsonpath="{.spec.ports[0].nodePort}")"
+            command="${command} $(minikube -p minikube-canary-demo ip):$(kubectl get svc traefik -o jsonpath="{.spec.ports[0].nodePort}")"
         fi
     fi
     command="${command} $host"
