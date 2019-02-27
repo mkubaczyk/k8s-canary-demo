@@ -1,10 +1,10 @@
 istio:
   grafana:
-    enabled: true
+    enabled: false
   tracing:
-    enabled: true
+    enabled: false
   servicegraph:
-    enabled: true
+    enabled: false
   ingress:
     service:
       type: LoadBalancer

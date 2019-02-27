@@ -13,7 +13,7 @@ function init_minikube {
     log "Deleting minikube"
     minikube delete -p minikube-canary-demo || true
     log "Bootstraping minikube"
-    minikube start -p minikube-canary-demo --vm-driver=hyperkit --kubernetes-version=v1.10.13 --cpus=4 --memory=12288 --disk-size 32g
+    minikube start -p minikube-canary-demo --vm-driver=hyperkit --kubernetes-version=v1.13.3 --cpus=2 --memory=8192 --disk-size 32g
     minikube -p minikube-canary-demo addons enable heapster
     minikube -p minikube-canary-demo addons enable metrics-server
     metrics_server_unavailable="1"
@@ -125,6 +125,18 @@ case "$1" in
         run_canary_header istio
         run_canary_header nginx
         ;;
+    all-external)
+        init_helm
+        run_istio
+        run_traefik
+        run_nginx_ingress
+        run_echo
+        run_canary istio
+        run_canary traefik
+        run_canary nginx
+        run_canary_header istio
+        run_canary_header nginx
+        ;;
     init)
         init_minikube
         ;;
@@ -172,6 +184,28 @@ case "$1" in
         ;;
     canary_nginx_header_external)
         run_canary_header nginx true
+        ;;
+    help)
+        echo -e <<EOF "all
+all-external
+istio
+traefik
+echo
+
+canary_istio
+canary_traefik
+canary_nginx
+
+canary_istio_header
+canary_nginx_header
+
+canary_istio_external
+canary_traefik
+canary_nginx_external
+
+canary_istio_header_external
+canary_nginx_header_external"
+EOF
         ;;
     *)
         log "Unknown parameter (all|init|helm|istio|traefik|echo|canary_istio|canary_traefik|header_traefik)"
